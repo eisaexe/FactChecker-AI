@@ -102,7 +102,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>Powered by Groq AI and Tavily Search | Fact checking with evidence-based reasoning</p>
+        <p>Powered by san.d.osh & eisa.exe | Fact checking with evidence-based reasoning</p>
       </footer>
     </div>
   );

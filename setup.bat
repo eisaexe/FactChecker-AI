@@ -16,15 +16,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Check if Node.js is installed
-node --version >nul 2>&1
+REM Node.js is no longer required (static HTML frontend)
+python --version >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Node.js is not installed. Please install Node.js 16+
+    echo [ERROR] Python is not installed. Please install Python 3.9+
     pause
     exit /b 1
 )
 
-echo [✓] Python and Node.js detected
+echo [✓] Python detected
 
 REM Setup Backend
 echo.
@@ -45,18 +45,7 @@ pip install -r requirements.txt
 echo.
 echo [✓] Backend setup complete
 
-REM Setup Frontend
-echo.
-echo Setting up Frontend...
-cd ..\frontend
-
-if not exist "node_modules" (
-    echo Installing Node dependencies...
-    call npm install
-)
-
-echo.
-echo [✓] Frontend setup complete
+REM no frontend setup needed; using static index.html
 
 echo.
 echo ========================================
@@ -69,12 +58,9 @@ echo 1. In one terminal (Backend):
 echo    cd backend
 echo    venv\Scripts\activate.bat
 echo    python app.py
-echo.
-echo 2. In another terminal (Frontend):
-echo    cd frontend
-echo    npm start
-echo.
+
 echo Backend will run on: http://localhost:5000
-echo Frontend will run on: http://localhost:3000
+
+echo Open `index.html` in your browser to use the static frontend.
 echo.
 pause

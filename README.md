@@ -6,7 +6,8 @@ A full-stack web application for fact-checking claims with AI-powered analysis a
 
 - **AI-Powered Analysis**: Uses Groq's fast LLM for intelligent fact-checking
 - **Live Web Search**: Retrieves current web evidence using Tavily API
-- **Professional UI**: Beautiful, responsive React frontend with card-based design
+- **Professional UI**: Beautiful, responsive static frontend with card-based design
+- **Live headlines**: Top‑10 news ticker displayed at top of homepage
 - **Confidence Scoring**: Displays confidence level with visual progress bar
 - **Citation Tracking**: Direct links to evidence sources
 - **Mobile Responsive**: Works seamlessly on desktop, tablet, and mobile devices
@@ -21,14 +22,12 @@ A full-stack web application for fact-checking claims with AI-powered analysis a
 - **Flask-CORS** - Cross-origin support
 
 ### Frontend
-- **React 18**
-- **Axios** - HTTP client
-- **CSS3** - Professional styling with animations
+- **Static HTML/CSS/JavaScript** served directly from `index.html`
+- **Axios** or `fetch` for API calls
 
 ## 📋 Prerequisites
 
 - Python 3.9 or higher
-- Node.js 16+ and npm
 - Groq API key
 - Tavily API key
 
@@ -71,20 +70,12 @@ python app.py
 
 The backend will start at `http://localhost:5000`
 
-### 3. Frontend Setup
+### 3. Frontend / Client
 
-#### Install Dependencies
-```bash
-cd frontend
-npm install
-```
-
-#### Start Development Server
-```bash
-npm start
-```
-
-The frontend will open at `http://localhost:3000`
+No build step is required. The user interface is contained in the root
+`index.html` file along with accompanying CSS/JS. Simply open the file in
+your browser or serve it from any static file server. API requests are
+proxied to `http://localhost:5000` when running locally.
 
 ## 📁 Project Structure
 
@@ -95,32 +86,15 @@ FactChecker-AI/
 │   ├── requirements.txt    # Python dependencies
 │   └── .env.example        # Environment variables template
 │
-├── frontend/
-│   ├── public/
-│   │   └── index.html      # HTML template
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   │   ├── SearchBar.js
-│   │   │   ├── VerdictCard.js
-│   │   │   ├── ConfidenceCard.js
-│   │   │   ├── ExplanationCard.js
-│   │   │   ├── CitationsCard.js
-│   │   │   ├── SearchResultsCard.js
-│   │   │   └── LoadingSpinner.js
-│   │   ├── App.js          # Main app component
-│   │   ├── App.css         # Global styles
-│   │   ├── index.js        # React entry point
-│   │   └── index.css       # Global CSS
-│   ├── package.json
-│   └── .gitignore
-│
-└── README.md
+├── index.html              # Static frontend (HTML/CSS/JS)
+├── README.md
 ```
 
 ## 🔄 How It Works
 
 1. **User Input**: User enters a claim or question in the search bar
 2. **Web Search**: Backend searches the web using Tavily API for current evidence
+3. **News Feed**: Supports fetching latest headlines to display in a scrolling ticker
 3. **AI Analysis**: Groq LLM analyzes the claim against retrieved evidence
 4. **Results Display**: Frontend displays:
    - Verdict (Real/Cap)
@@ -244,9 +218,8 @@ MODEL_NAME = "openai/gpt-oss-20b"  # Current model
 - Ensure no extra whitespace in `.env` file
 
 ### Frontend Not Loading
-- Clear browser cache (Ctrl+Shift+Delete)
-- Check that React dev server is running
-- Verify `npm install` completed successfully
+- Open `index.html` in your browser or serve it with a simple HTTP server (e.g. `python -m http.server` from workspace root)
+- Clear browser cache if changes aren’t appearing
 
 ## 🚀 Deployment
 
@@ -256,11 +229,8 @@ heroku create your-app-name
 git push heroku main
 ```
 
-### Deploy Frontend (Vercel)
-```bash
-npm install -g vercel
-vercel
-```
+### Deploy Frontend
+Just serve the static `index.html` file using any hosting provider capable of serving HTML (GitHub Pages, Netlify, etc.). No build step is required.
 
 ## 📝 License
 

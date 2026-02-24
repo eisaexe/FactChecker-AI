@@ -146,9 +146,70 @@ def fact_check():
         return jsonify({"error": str(e)}), 500
 
 
+# ==============================
+# ✅ RECENT NEWS
+# ==============================
+def search_news(limit: int = 10):
+    """Use the Tavily client to fetch the latest news headlines."""
+    # a very simple query that should return current news results
+    response = tavily_client.search(
+        query="latest news",
+        search_depth="basic",
+        max_results=limit,
+    )
+
+    articles = []
+    for r in response.get("results", []):
+        url_lower = r["url"].lower()
+        # filter out social media posts
+        if any(domain in url_lower for domain in [
+            "facebook.com",
+            "reddit.com",
+            "quora.com",
+            "twitter.com",
+            "x.com",
+            "youtube.com",
+            "instagram.com",
+        ]):
+            continue
+        articles.append({
+            "title": r.get("title", "No title"),
+            "url": r.get("url"),
+        })
+        if len(articles) >= limit:
+            break
+    return articles
+
+
+@app.route('/api/news', methods=['GET'])
+def news():
+    try:
+        articles = search_news(limit=10)
+        return jsonify({"success": True, "articles": articles}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({"status": "healthy"}), 200
+
+
+# ==============================
+# ✅ STATIC FRONTEND
+# ==============================
+from flask import send_from_directory
+import os
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    """Serve the static HTML/CSS/JS frontend located at the project root."""
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+    file_path = os.path.join(root_dir, 'index.html')
+    if path and os.path.exists(os.path.join(root_dir, path)):
+        return send_from_directory(root_dir, path)
+    return send_from_directory(root_dir, 'index.html')
 
 
 if __name__ == "__main__":

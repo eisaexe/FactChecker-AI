@@ -46,8 +46,9 @@ def search_web(query):
     raw_results = []
 
     for r in response["results"]:
-        # Guardrail: Exclude Facebook posts
-        if "facebook.com" in r["url"].lower():
+        # Guardrail: Exclude Facebook, Reddit, Quora, X/Twitter posts
+        url_lower = r["url"].lower()
+        if any(domain in url_lower for domain in ["facebook.com", "reddit.com", "quora.com", "twitter.com", "x.com","youtube.com","instagram.com"]):
             continue
         evidence_blocks.append(
             f"""
@@ -122,8 +123,9 @@ def fact_check():
         cleaned = clean_json_response(raw_answer)
         result = json.loads(cleaned)
 
-        # Guardrail: Remove Facebook URLs from citations
-        citations = [url for url in result.get("citations", []) if "facebook.com" not in url.lower()]
+        # Guardrail: Remove Facebook, Reddit, Quora, X/Twitter URLs from citations
+        block_domains = ["facebook.com", "reddit.com", "quora.com", "twitter.com", "x.com","youtube.com","instagram.com"]
+        citations = [url for url in result.get("citations", []) if not any(domain in url.lower() for domain in block_domains)]
 
         # Validate confidence
         confidence = int(result.get("confidence", 0))

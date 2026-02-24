@@ -115,6 +115,140 @@
             100% { transform: translateX(-50%); }
         }
 
+        /* Witness Chat */
+        .witness-card {
+            animation: slideInLeft 0.5s ease 0.15s backwards;
+        }
+        /* witness text is hidden, we just keep the button */
+        .witness-content {
+            display: none;
+        }
+        .chat-button {
+            background: var(--purple-main);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-button:hover {
+            background: var(--purple-dark);
+        }
+
+        /* Chat modal */
+        .chat-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        .chat-modal.hidden {
+            display: none;
+        }
+        .chat-window {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: inherit;
+            max-height: 70vh;
+        }
+        .chat-header {
+            background: var(--purple-main);
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-header .close-icon {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f9fafb;
+            /* ensure scrollbar always visible when needed */
+            overflow-x: hidden;
+        }
+        .chat-message {
+            margin-bottom: 0.75rem;
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+        /* user messages right, assistant left (typical chat) */
+        .chat-message.user {
+            align-self: flex-end;
+            background: var(--purple-main);
+            color: white;
+            text-align: right;
+        }
+        .chat-message.assistant {
+            align-self: flex-start;
+            background: #e5e7eb;
+            color: var(--text-primary);
+            text-align: left;
+        }
+        .chat-input-area {
+            display: flex;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+        .chat-input-area input {
+            flex: 1;
+            border: none;
+            padding: 1rem;
+            font-family: inherit;
+            background: #f9fafb;
+        }
+        .chat-input-area input:focus {
+            outline: none;
+            background: #fff;
+        }
+        .chat-input-area button {
+            background: var(--purple-main);
+            color: white;
+            border: none;
+            padding: 0 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-input-area button:hover {
+            background: var(--purple-dark);
+        }
+        .chat-input-area input:focus {
+            outline: none;
+        }
+        .chat-input-area button {
+            background: var(--purple-main);
+            color: white;
+            border: none;
+            padding: 0 1rem;
+            cursor: pointer;
+        }
+        .chat-input-area button:hover {
+            background: var(--purple-dark);
+        }
+
         /* Search Bar */
         .search-bar-container {
             margin-bottom: 2rem;
@@ -1101,12 +1235,33 @@
                         </div>
                         <div class="details-section">
                             <div id="explanationCard" class="card explanation-card"></div>
+                            <!-- witness card will appear when data is available -->
+                            <div id="witnessCard" class="card witness-card hidden">
+                                <div class="card-header"><h3>🗣️ Witness</h3></div>
+                                <!-- witness text hidden; button only -->
+                                <button id="chatWitnessBtn" class="chat-button">Chat with Witness</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="supporting-grid">
                         <div id="citationsCard" class="card citations-card"></div>
                         <div id="searchResultsCard" class="card search-results-card"></div>
+                    </div>
+
+                    <!-- chat modal for witness interaction -->
+                    <div id="chatModal" class="chat-modal hidden">
+                        <div class="chat-window">
+                            <div class="chat-header">
+                                <span>Chat with Witness</span>
+                                <span class="close-icon" id="closeChatBtn">✖</span>
+                            </div>
+                            <div id="chatMessages" class="chat-messages"></div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chatInput" placeholder="Ask the witness..." />
+                                <button id="sendChatBtn">Send</button>
+                            </div>
+                        </div>
                     </div>
 
                     <button class="clear-button" onclick="clearResults()">← Check Another Claim</button>
@@ -1283,6 +1438,18 @@
                     <p>${data.explanation}</p>
                 </div>
             `;
+
+            // Witness Card – compute witness text for chat but do not display it
+            let witnessText = data.witness || '';
+            if (!witnessText && data.searchResults && data.searchResults.length) {
+                witnessText = data.searchResults.map(r => `Title: ${r.title}\n${r.content}`).join('\n');
+            }
+            if (witnessText) {
+                window.latestWitness = witnessText; // store for chat
+                document.getElementById('witnessCard').classList.remove('hidden');
+            } else {
+                document.getElementById('witnessCard').classList.add('hidden');
+            }
 
             // Citations Card
             const citations = data.citations || [];
@@ -1518,6 +1685,75 @@
             `).join('');
             contentEl.innerHTML = items + items; // duplicate for seamless loop
         }
+
+        // Chat globals
+        let chatHistory = [];
+        let currentWitness = '';
+
+        function openChat(witnessText) {
+            currentWitness = witnessText;
+            chatHistory = [];
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('chatModal').classList.remove('hidden');
+            document.getElementById('chatInput').focus();
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.add('hidden');
+        }
+
+        async function sendChat() {
+            const inputEl = document.getElementById('chatInput');
+            const question = inputEl.value.trim();
+            if (!question) return;
+            // add user message to UI
+            appendChatMessage('user', question);
+            chatHistory.push({ role: 'user', content: question });
+            inputEl.value = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/witness-chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ witness: currentWitness, history: chatHistory }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const reply = data.reply;
+                    appendChatMessage('assistant', reply);
+                    chatHistory.push({ role: 'assistant', content: reply });
+                } else {
+                    appendChatMessage('assistant', 'Error: ' + (data.error || 'Unable to get response'));
+                }
+            } catch (err) {
+                appendChatMessage('assistant', 'Error communicating with server.');
+                console.error(err);
+            }
+        }
+
+        function appendChatMessage(role, text) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'chat-message ' + role;
+            // escape HTML and highlight phrase
+            const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const highlighted = escaped.replace(/The Kerala Story\u202f2: Goes Beyond/g,
+                                                 '<strong>The Kerala Story 2: Goes Beyond</strong>');
+            div.innerHTML = highlighted;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.getElementById('chatWitnessBtn').addEventListener('click', () => {
+            openChat(window.latestWitness || '');
+        });
+        document.getElementById('closeChatBtn').addEventListener('click', closeChat);
+        document.getElementById('sendChatBtn').addEventListener('click', sendChat);
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChat();
+            }
+        });
 
         // Initial focus
         queryInput.focus();

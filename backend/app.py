@@ -15,7 +15,9 @@ TAVILY_API_KEY = "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"
 groq_client = Groq(api_key=GROQ_API_KEY)
 tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
 
+# choose a model permitted for the project; gpt-oss-20b was blocked so switch to a mini model
 MODEL_NAME = "openai/gpt-oss-20b"
+CHAT_MODEL = "openai/gpt-oss-20b"  # can be same or another free mini model
 
 
 # ==============================
@@ -131,11 +133,18 @@ def fact_check():
         confidence = int(result.get("confidence", 0))
         confidence = max(0, min(confidence, 100))
 
+        # build witness text from the text of each search result (the links/evidence)
+        witness_text = "\n".join([
+            f"Title: {r['title']}\nContent: {r['content']}" for r in raw_results
+        ])
+
         return jsonify({
             "success": True,
             "verdict": result.get("verdict"),
             "confidence": confidence,
             "explanation": result.get("explanation"),
+            # send the concatenated search result contents as witness knowledge
+            "witness": witness_text,
             "citations": citations,
             "searchResults": raw_results
         }), 200
@@ -193,6 +202,42 @@ def news():
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({"status": "healthy"}), 200
+
+
+# ==============================
+# ✅ WITNESS CHAT
+# ==============================
+def chat_with_witness(witness_text, history):
+    """Run a conversational model with the witness information as context.
+    `history` should be a list of dicts with keys 'role' and 'content'.
+    """
+    system_msg = (
+        "You are a helpful assistant that can only answer based on the provided witness information. "
+        "Do NOT invent answers; if the information is insufficient, respond with 'I don't know based on the witness information.'\n\n"
+        f"Witness Information:\n{witness_text}"
+    )
+    messages = [{"role": "system", "content": system_msg}] + history
+    response = groq_client.chat.completions.create(
+        model=CHAT_MODEL,
+        messages=messages,
+        temperature=0.2,
+    )
+    return response.choices[0].message.content
+
+
+@app.route('/api/witness-chat', methods=['POST'])
+def witness_chat():
+    data = request.json or {}
+    witness_text = data.get('witness', '').strip()
+    history = data.get('history', [])
+    if not witness_text or not isinstance(history, list):
+        return jsonify({"success": False, "error": "Invalid payload"}), 400
+
+    try:
+        reply = chat_with_witness(witness_text, history)
+        return jsonify({"success": True, "reply": reply}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ==============================

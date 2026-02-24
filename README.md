@@ -8,6 +8,7 @@ A full-stack web application for fact-checking claims with AI-powered analysis a
 - **Live Web Search**: Retrieves current web evidence using Tavily API
 - **Professional UI**: Beautiful, responsive static frontend with card-based design
 - **Live headlines**: Top‑10 news ticker displayed at top of homepage
+- **Witness chatbot**: Chat directly with a "witness" whose information is derived from the content of the web links returned by the search (not the AI’s reasoning)
 - **Confidence Scoring**: Displays confidence level with visual progress bar
 - **Citation Tracking**: Direct links to evidence sources
 - **Mobile Responsive**: Works seamlessly on desktop, tablet, and mobile devices
@@ -95,7 +96,8 @@ FactChecker-AI/
 1. **User Input**: User enters a claim or question in the search bar
 2. **Web Search**: Backend searches the web using Tavily API for current evidence
 3. **News Feed**: Supports fetching latest headlines to display in a scrolling ticker
-3. **AI Analysis**: Groq LLM analyzes the claim against retrieved evidence
+4. **AI Analysis**: Groq LLM analyzes the claim against retrieved evidence
+5. **Witness Chat**: The text of the web search results is exposed as "witness" knowledge. The chat interface lets users ask questions and the assistant answers strictly from those links (via a mini LLM).
 4. **Results Display**: Frontend displays:
    - Verdict (Real/Cap)
    - Confidence score with progress bar
@@ -119,6 +121,11 @@ Shows confidence score with:
 
 ### ExplanationCard
 Detailed explanation of the fact-check reasoning
+
+### WitnessCard + Chat
+Displays the same reasoning as a "witness" and provides a button to launch
+an interactive chat modal. The assistant will only reference the witness
+text when answering questions.
 
 ### CitationsCard
 Interactive links to source materials used in analysis

@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
+import os
 from groq import Groq
 from tavily import TavilyClient
 
@@ -8,9 +9,20 @@ from tavily import TavilyClient
 app = Flask(__name__)
 CORS(app)
 
-# 🔑 API KEYS
-GROQ_API_KEY = "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"
-TAVILY_API_KEY = "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"
+# ==============================
+# 🔑 API KEYS (PASTE HERE)
+# ==============================
+GROQ_API_KEY = "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" # Provided previously
+TAVILY_API_KEY = "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" # Provided previously
+
+# # Firebase Keys
+# FIREBASE_API_KEY="AIzaSyC1lrKD-Q5Xp9ugetbOa_OYNm1EJZhU73s"
+# FIREBASE_AUTH_DOMAIN="fact-cheker-104af.firebaseapp.com"
+# FIREBASE_PROJECT_ID="fact-cheker-104af"
+# FIREBASE_STORAGE_BUCKET="fact-cheker-104af.firebasestorage.app"
+# FIREBASE_MESSAGING_SENDER_ID="650484929893"
+# FIREBASE_APP_ID="1:650484929893:web:4af274be8786b03a113d8c"
+
 
 groq_client = Groq(api_key=GROQ_API_KEY)
 tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
@@ -202,6 +214,22 @@ def news():
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({"status": "healthy"}), 200
+
+# ==============================
+# ✅ SERVE FIREBASE CONFIG
+# ==============================
+@app.route('/api/config/firebase', methods=['GET'])
+def firebase_config():
+    """Serve public Firebase config variables to the frontend."""
+    config = {
+        "apiKey": FIREBASE_API_KEY,
+        "authDomain": FIREBASE_AUTH_DOMAIN,
+        "projectId": FIREBASE_PROJECT_ID,
+        "storageBucket": FIREBASE_STORAGE_BUCKET,
+        "messagingSenderId": FIREBASE_MESSAGING_SENDER_ID,
+        "appId": FIREBASE_APP_ID
+    }
+    return jsonify({"success": True, "config": config}), 200
 
 
 # ==============================

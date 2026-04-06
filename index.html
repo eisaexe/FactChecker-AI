@@ -1,1767 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real or Cap - AI Fact Checker</title>
+    <link rel="icon" type="image/svg+xml" href="research-left-svgrepo-com.svg">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Persistent 3D Background -->
+        <canvas id="heroCanvas"></canvas>
+
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="logo-area">
+                <img src="research-left-svgrepo-com.svg" alt="logo" class="logo-icon"
+                    style="width: 32px; height: 32px; filter: drop-shadow(0 0 5px var(--primary-neon));">
+                <span class="logo-text">Real or Cap</span>
+            </div>
+
+            <div class="nav-links">
+                <button id="navHome" class="nav-tab active">Home</button>
+                <button id="navHistory" class="nav-tab">History</button>
+                <button id="navPricing" class="nav-tab">Pricing</button>
+            </div>
+
+            <!-- Credit Area -->
+            <div id="creditContainer" class="auth-area" style="display: flex; align-items: center;">
+                <button id="themeToggleBtn" class="theme-toggle" title="Toggle Light/Dark Mode">🌓</button>
+                <div class="user-profile" style="display: flex;">
+                    <div class="credit-chip" title="Remaining Credits">
+                        <span style="font-size:0.9rem">⚡</span> <span id="creditCount">--</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Interactive Slide-Out Chat Panel -->
+        <aside id="chatSidebar" class="chat-sidebar">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span style="font-size: 1.2rem">🗣️</span> Witness AI Protocol
+                </div>
+                <button id="closeChatBtn" class="chat-close-btn">&times;</button>
+            </div>
+
+            <div id="chatHistory" class="chat-history">
+                <!-- Chat bubbles go here -->
+                <div class="bubble assistant">
+                    Connecting to the deep web... Witness model engaged. What details do you need about the source
+                    documents?
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-box">
+                    <input type="text" id="chatInput" class="c-input" placeholder="Interrogate the witness...">
+                    <button id="sendChatBtn" class="c-btn">➤</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+
+            <!-- Global Error Banner -->
+            <div id="errorBox" class="error-box hidden">
+                <span id="errorText"></span>
+            </div>
+
+            <!-- View 1: Landing Page / Global Search -->
+            <section id="landingSection" class="landing-section">
+                <h1 class="landing-title">
+                    Truth is <span class="highlight-text">Absolute.</span><br>Verify it instantly.
+                </h1>
+
+                <p class="landing-subtitle">
+                    Cross-reference real-time global news networks. Detect deep fakes, uncover political spin, and
+                    reveal the pure facts with AI cognitive reasoning.
+                </p>
+
+                <div class="search-wrapper">
+                    <input type="text" id="queryInput" class="search-input"
+                        placeholder="Paste a claim, article headline, or rumor...">
+                    <button id="searchBtn" class="search-btn">Analyze</button>
+                </div>
+
+                <!-- Live News Ticker -->
+                <div class="news-ticker-container">
+                    <div class="news-ticker-label">LIVE FEED</div>
+                    <div class="news-ticker-track">
+                        <div id="newsMarquee" class="news-ticker-content">
+                            <!-- Injected JS -->
+                            <span style="color:var(--text-muted)">Scanning global networks for latest updates...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View 1.5: History Dashboard -->
+            <section id="historyView" class="view-section" style="display: none;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">Verification <span class="highlight-text">Log</span>
+                </h2>
+                <div id="historyGrid" class="history-grid">
+                    <!-- Injected JS -->
+                </div>
+            </section>
+
+            <!-- View 1.8: Pricing Dashboard -->
+            <section id="pricingView" class="view-section" style="display: none; width: 100%; text-align: center;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Credit <span class="highlight-text">Matrix</span>
+                </h2>
+                <p style="color: var(--text-muted); margin-bottom: 3rem;">Refuel your cognitive analysis limits.</p>
+
+                <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr);">
+
+                    <div class="glass-card pricing-card">
+                        <h3>Starter Recon</h3>
+                        <div class="price">$5 <span>/ 200 credits</span></div>
+                        <ul class="pricing-features">
+                            <li>⚡ 20 Fact Checks</li>
+                            <li>🗨️ 40 Chat Queries</li>
+                        </ul>
+                        <button class="search-btn" style="width:100%; padding:0.75rem;">Buy 200 Credits</button>
+                    </div>
+
+                    <div class="glass-card pricing-card popular">
+                        <div class="popular-badge">MOST POPULAR</div>
+                        <h3>Deep operative</h3>
+                        <div class="price">$15 <span>/ 800 credits</span></div>
+                        <ul class="pricing-features">
+                            <li>⚡ 80 Fact Checks</li>
+                            <li>🗨️ 160 Chat Queries</li>
+                            <li>🚀 Priority Execution</li>
+                        </ul>
+                        <button class="search-btn" style="width:100%; padding:0.75rem;">Buy 800 Credits</button>
+                    </div>
+
+                    <div class="glass-card pricing-card">
+                        <h3>Syndicate</h3>
+                        <div class="price">$40 <span>/ 3000 credits</span></div>
+                        <ul class="pricing-features">
+                            <li>⚡ 300 Fact Checks</li>
+                            <li>🗨️ 600 Chat Queries</li>
+                            <li>🛡️ Unlimited History</li>
+                        </ul>
+                        <button class="search-btn" style="width:100%; padding:0.75rem;">Buy 3000 Credits</button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- View 2: Analyzing State -->
+            <section id="loadingView" class="loading-view">
+                <div class="loader-spinner">
+                    <!-- Pure CSS glowing ring -->
+                    <div
+                        style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid rgba(0,240,255,0.1); border-top-color: var(--primary-neon); animation: spin 1s linear infinite;">
+                    </div>
+                </div>
+                <div class="loader-text">Decrypting Information Streams</div>
+            </section>
+
+            <!-- View 3: Dashboard Results -->
+            <section id="resultsDashboard" class="results-dashboard" style="display: none;">
+
+                <!-- Query Banner -->
+                <div class="user-query-card">
+                    <div class="query-label">Analyzed Claim</div>
+                    <div id="userQueryDisplay" class="query-text"></div>
+                </div>
+
+                <!-- NEW: Full width verdict -->
+                <div id="verdictBanner" class="verdict-banner">
+                    <!-- Injected JS -->
+                </div>
+
+                <div class="dashboard-grid reorganized-grid">
+                    <!-- Left Column: Confidence & Interrogation -->
+                    <div class="col-left">
+                        <div class="glass-card">
+                            <div class="card-title">🔬 Confidence Protocol</div>
+                            <div class="conf-val" id="confValue">0%</div>
+                            <div class="conf-bar-bg">
+                                <div id="confFill" class="conf-bar-fill"></div>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem;">
+                                Based on cross-validated multi-source heuristic confirmation and network corroboration.
+                            </p>
+                        </div>
+
+                        <button id="launchChatBtn" class="launch-chat-btn" style="display: none;">
+                            <span style="font-size: 1.5rem">💬</span> Interrogate the AI Witness
+                        </button>
+                    </div>
+
+                    <!-- Right Column: Evidence & Explanation -->
+                    <div class="col-right">
+                        <div class="glass-card">
+                            <div class="card-title">🧠 Cognitive Breakdown</div>
+                            <div id="expText" class="explanation-text"></div>
+                        </div>
+
+                        <div class="glass-card citations-card">
+                            <div class="card-title">📡 Network Sources</div>
+                            <div class="citations-list" id="citationsList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="search-btn reset-btn" style="margin-top: 2rem; width: 100%"
+                    onclick="window.location.reload()">↺ Run New Analysis</button>
+            </section>
+
+        </main>
+
+        <!-- App Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-logo"
+                    style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <img src="research-left-svgrepo-com.svg" alt="logo" class="logo-icon"
+                        style="width: 24px; height: 24px;"> Real or Cap
+                </div>
+                <div class="footer-text">
+                    Devloped by eisa.exe & san.d.hosh | © 2026 <br>
+                </div>
+                <div class="footer-links">
+                    <a href="#">All rights reserved</a>
+                    <a href="#">Terms of Use</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Spin Keyframe -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-green: #10b981;
-            --danger-red: #ef4444;
-            --warning-yellow: #f59e0b;
-            --purple-main: #667eea;
-            --purple-dark: #764ba2;
-            --gray-light: #f3f4f6;
-            --gray-medium: #d1d5db;
-            --gray-dark: #374151;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-                sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            min-height: 100vh;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .app-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 3rem 1rem;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .header-content h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .header-content p {
-            font-size: 1.1rem;
-            opacity: 0.95;
-            font-weight: 300;
-        }
-
-        /* Main Content */
-        .app-main {
-            flex: 1;
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        /* News ticker */
-        .news-ticker-wrapper {
-            width: 100%;
-            overflow: hidden;
-            background: var(--gray-light);
-            border-bottom: 1px solid var(--gray-medium);
-            margin-bottom: 1rem;
-        }
-
-        .news-ticker {
-            white-space: nowrap;
-            display: block;
-            overflow: hidden;
-        }
-
-        .ticker-content {
-            display: inline-block;
-            animation: marquee 20s linear infinite;
-        }
-
-        .news-item {
-            display: inline-block;
-            margin-right: 3rem;
-            font-size: 0.95rem;
-        }
-
-        .news-item a {
-            color: var(--text-primary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .news-item a:hover {
-            color: var(--primary-green);
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* Witness Chat */
-        .witness-card {
-            animation: slideInLeft 0.5s ease 0.15s backwards;
-        }
-        /* witness text is hidden, we just keep the button */
-        .witness-content {
-            display: none;
-        }
-        .chat-button {
-            background: var(--purple-main);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .chat-button:hover {
-            background: var(--purple-dark);
-        }
-
-        /* Chat modal */
-        .chat-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-        .chat-modal.hidden {
-            display: none;
-        }
-        .chat-window {
-            background: white;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 1rem;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            font-family: inherit;
-            max-height: 70vh;
-        }
-        .chat-header {
-            background: var(--purple-main);
-            color: white;
-            padding: 0.75rem 1rem;
-            font-size: 1.1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .chat-header .close-icon {
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            background: #f9fafb;
-            overflow-x: hidden;
-
-            display: flex;              /* 🔥 ADD */
-            flex-direction: column;     /* 🔥 ADD */
-        }
-        .chat-message {
-            margin-bottom: 0.75rem;
-            max-width: 80%;
-            padding: 0.75rem 1rem;
-            border-radius: 1rem;
-            word-wrap: break-word;
-
-            width: fit-content;    /* 🔥 ADD */
-        }
-        /* user messages right, assistant left (typical chat) */
-        .chat-message.user {
-            align-self: flex-end;
-            background: var(--purple-main);
-            color: white;
-            text-align: right;
-        }
-        .chat-message.assistant {
-            align-self: flex-start;
-            background: #e5e7eb;
-            color: var(--text-primary);
-            text-align: left;
-        }
-        .chat-input-area {
-            display: flex;
-            border-top: 1px solid #e5e7eb;
-            background: white;
-        }
-        .chat-input-area input {
-            flex: 1;
-            border: none;
-            padding: 1rem;
-            font-family: inherit;
-            background: #f9fafb;
-        }
-        .chat-input-area input:focus {
-            outline: none;
-            background: #fff;
-        }
-        .chat-input-area button {
-            background: var(--purple-main);
-            color: white;
-            border: none;
-            padding: 0 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .chat-input-area button:hover {
-            background: var(--purple-dark);
-        }
-        .chat-input-area input:focus {
-            outline: none;
-        }
-        .chat-input-area button {
-            background: var(--purple-main);
-            color: white;
-            border: none;
-            padding: 0 1rem;
-            cursor: pointer;
-        }
-        .chat-input-area button:hover {
-            background: var(--purple-dark);
-        }
-
-        /* Search Bar */
-        .search-bar-container {
-            margin-bottom: 2rem;
-        }
-
-        .search-bar {
-            display: flex;
-            gap: 0.75rem;
-            background: white;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.3s ease;
-        }
-
-        .search-input {
-            flex: 1;
-            border: 2px solid #e5e7eb;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--purple-main);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .search-input:disabled {
-            background: #f9fafb;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .search-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .search-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(102, 126, 234, 0.4);
-        }
-
-        .search-button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .search-hint {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            font-style: italic;
-        }
-
-        /* Error Notification */
-        .error-notification {
-            background: #fee2e2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow-sm);
-            animation: slideDown 0.3s ease;
-        }
-
-        .error-notification.hidden {
-            display: none;
-        }
-
-        .error-notification button {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #991b1b;
-            padding: 0;
-        }
-
-        /* Loading Spinner */
-        .spinner-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 300px;
-            gap: 2rem;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .spinner-container.hidden {
-            display: none;
-        }
-
-        .spinner {
-            border: 5px solid #e5e7eb;
-            border-top: 5px solid var(--purple-main);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-
-        .spinner-text p {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin: 0;
-        }
-
-        /* Results Container */
-        .results-container {
-            animation: fadeIn 0.5s ease;
-        }
-
-        .results-container.hidden {
-            display: none;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .main-verdict {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .details-section {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .supporting-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        /* Card Base */
-        .card {
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            background: white;
-            animation: slideInLeft 0.5s ease;
-        }
-
-        .card h3 {
-            margin: 0 0 1rem 0;
-            color: var(--text-primary);
-            font-size: 1.1rem;
-        }
-
-        /* Verdict Card */
-        .verdict-card {
-            border-radius: 1rem;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            animation: slideInLeft 0.5s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .verdict-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
-            pointer-events: none;
-        }
-
-        .verdict-real {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.3);
-        }
-
-        .verdict-cap {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.3);
-        }
-
-        .verdict-icon {
-            font-size: 3.5rem;
-            margin-bottom: 0.5rem;
-            animation: bounce 0.6s ease;
-        }
-
-        .verdict-text {
-            text-align: center;
-        }
-
-        .verdict-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
-            font-weight: 500;
-        }
-
-        .verdict-value {
-            font-size: 2.5rem;
-            font-weight: 900;
-            margin: 0;
-        }
-
-        .verdict-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            backdrop-filter: blur(10px);
-        }
-
-        /* Confidence Card */
-        .confidence-card {
-            animation: slideInLeft 0.5s ease 0.1s backwards;
-        }
-
-        .confidence-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .confidence-percentage {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--purple-main);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 12px;
-            background: #e5e7eb;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-            animation: shimmer 2s infinite;
-        }
-
-        .confidence-level {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .confidence-description {
-            background: #f9fafb;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            border-left: 4px solid #e5e7eb;
-        }
-
-        .confidence-description p {
-            margin: 0;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        /* Explanation Card */
-        .explanation-card {
-            animation: slideInLeft 0.5s ease 0.2s backwards;
-        }
-
-        .card-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .explanation-content {
-            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            border-left: 4px solid var(--purple-main);
-        }
-
-        .explanation-content p {
-            margin: 0;
-            color: var(--gray-dark);
-            font-size: 1rem;
-            line-height: 1.8;
-            font-weight: 500;
-        }
-
-        /* Citations Card */
-        .citations-card {
-            animation: slideInLeft 0.5s ease 0.3s backwards;
-        }
-
-        .citations-card .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .citation-count {
-            background: var(--purple-main);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 2rem;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        .citations-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .citation-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .citation-item:hover {
-            background: #f3f4f6;
-            border-color: var(--purple-main);
-            transform: translateX(4px);
-            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.15);
-        }
-
-        .citation-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .citation-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .citation-source {
-            margin: 0;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .citation-url {
-            margin: 0.25rem 0 0 0;
-            font-size: 0.8rem;
-            color: #9ca3af;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .citation-arrow {
-            font-size: 1.25rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .citation-item:hover .citation-arrow {
-            opacity: 1;
-        }
-
-        .no-citations {
-            color: #9ca3af;
-            text-align: center;
-            padding: 2rem;
-            margin: 0;
-            font-style: italic;
-        }
-
-        /* Search Results Card */
-        .search-results-card {
-            animation: slideInLeft 0.5s ease 0.35s backwards;
-        }
-
-        .search-results-card .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .results-count {
-            background: var(--purple-main);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 2rem;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        .results-container-inner {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .result-item {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .result-item:hover {
-            border-color: var(--purple-main);
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-        }
-
-        .result-item.expanded {
-            border-color: var(--purple-main);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-        }
-
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem;
-            background: #f9fafb;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .result-item:hover .result-header {
-            background: #f3f4f6;
-        }
-
-        .result-title-section {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .result-title {
-            margin: 0 0 0.5rem 0;
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-weight: 600;
-            word-break: break-word;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .result-url {
-            margin: 0;
-            color: var(--purple-main);
-            font-size: 0.8rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .expand-button {
-            background: none;
-            border: none;
-            font-size: 0.9rem;
-            cursor: pointer;
-            color: #6b7280;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: color 0.2s ease;
-        }
-
-        .expand-button:hover {
-            color: var(--purple-main);
-        }
-
-        .result-content {
-            padding: 1rem;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            animation: slideDown 0.3s ease;
-        }
-
-        .result-content p {
-            margin: 0 0 1rem 0;
-            color: var(--gray-dark);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .read-more-link {
-            display: inline-block;
-            color: var(--purple-main);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .read-more-link:hover {
-            color: var(--purple-dark);
-            text-decoration: underline;
-        }
-
-        .no-results {
-            color: #9ca3af;
-            text-align: center;
-            padding: 2rem;
-            margin: 0;
-            font-style: italic;
-        }
-
-        .result-content.hidden {
-            display: none;
-        }
-
-        /* Clear Button */
-        .clear-button {
-            display: block;
-            margin: 2rem auto;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow-md);
-        }
-
-        .clear-button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .clear-button.hidden {
-            display: none;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-secondary);
-        }
-
-        .empty-state.hidden {
-            display: none;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state h2 {
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-state p {
-            font-size: 1.05rem;
-        }
-
-        /* Footer */
-        .app-footer {
-            background: var(--gray-dark);
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            font-size: 0.95rem;
-            margin-top: 3rem;
-        }
-
-        /* Animations */
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
             100% {
                 transform: rotate(360deg);
             }
         }
-
-        @keyframes shimmer {
-            0% {
-                transform: translateX(-100%);
-            }
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        /* Tabs */
-        .tabs-container {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .tab-button {
-            background: none;
-            border: none;
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-        }
-
-        .tab-button:hover {
-            color: var(--text-primary);
-        }
-
-        .tab-button.active {
-            color: var(--purple-main);
-            border-bottom-color: var(--purple-main);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        /* Question Display */
-        .question-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .question-label {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0 0 0.5rem 0;
-            font-weight: 600;
-        }
-
-        .question-text {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin: 0;
-            line-height: 1.5;
-            word-break: break-word;
-        }
-
-        /* History List */
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .history-item {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .history-item:hover {
-            border-color: var(--purple-main);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .history-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 0.75rem;
-        }
-
-        .history-question {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-            word-break: break-word;
-            flex: 1;
-        }
-
-        .history-verdict {
-            padding: 0.25rem 0.75rem;
-            border-radius: 2rem;
-            font-size: 0.85rem;
-            font-weight: 700;
-            white-space: nowrap;
-            margin-left: 1rem;
-        }
-
-        .history-verdict.real {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .history-verdict.cap {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .history-info {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .history-date {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .history-confidence {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .history-empty {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--text-secondary);
-        }
-
-        .history-empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .clear-history-btn {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-
-        .clear-history-btn:hover {
-            background: #fecaca;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .results-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .supporting-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header-content h1 {
-                font-size: 2rem;
-            }
-
-            .header-content p {
-                font-size: 0.95rem;
-            }
-
-            .app-header {
-                padding: 2rem 1rem;
-            }
-
-            .search-bar {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .search-button {
-                width: 100%;
-            }
-
-            .verdict-icon {
-                font-size: 2.5rem;
-            }
-
-            .verdict-value {
-                font-size: 2rem;
-            }
-        }
     </style>
-</head>
-<body>
-    <div class="container">
-        <header class="app-header">
-            <div class="header-content">
-                <h1>🧠 Real or Cap</h1>
-                <p>AI-Powered Fact Checker with Live Web Evidence</p>
-            </div>
-        </header>
 
-        <main class="app-main">
-            <!-- Latest headlines ticker -->
-            <div class="news-ticker-wrapper">
-                <div class="news-ticker">
-                    <div class="ticker-content" id="newsTickerContent"></div>
-                </div>
-            </div>
-
-            <!-- Tabs -->
-            <div class="tabs-container">
-                <button class="tab-button active" onclick="switchTab('search')">🔎 Search</button>
-                <button class="tab-button" onclick="switchTab('history')">📜 History</button>
-            </div>
-
-            <!-- Search Tab -->
-            <div id="searchTab" class="tab-content active">
-                <div class="search-bar-container">
-                    <div class="search-bar">
-                        <input
-                            type="text"
-                            id="queryInput"
-                            class="search-input"
-                            placeholder="Enter a claim or question to fact-check..."
-                        />
-                        <button id="searchBtn" class="search-button">🔎 Fact Check</button>
-                    </div>
-                    <p class="search-hint">Example: "China showcased a robot which was manufactured by Galgotia University in International AI summit ?"</p>
-                </div>
-
-                <div id="errorNotification" class="error-notification hidden">
-                    <span id="errorText"></span>
-                    <button onclick="document.getElementById('errorNotification').classList.add('hidden')">✕</button>
-                </div>
-
-                <div id="loadingSpinner" class="spinner-container hidden">
-                    <div class="spinner"></div>
-                    <div class="spinner-text">
-                        <p>Searching the web and analyzing evidence...</p>
-                    </div>
-                </div>
-
-                <div id="resultsContainer" class="results-container hidden">
-                    <div id="questionDisplay" class="question-display hidden">
-                        <p class="question-label">Your Question</p>
-                        <p class="question-text" id="questionText"></p>
-                    </div>
-
-                    <div class="results-grid">
-                        <div class="main-verdict">
-                            <div id="verdictCard" class="verdict-card"></div>
-                            <div id="confidenceCard" class="card confidence-card"></div>
-                        </div>
-                        <div class="details-section">
-                            <div id="explanationCard" class="card explanation-card"></div>
-                            <!-- witness card will appear when data is available -->
-                            <div id="witnessCard" class="card witness-card hidden">
-                                <div class="card-header"><h3>🗣️ Witness</h3></div>
-                                <!-- witness text hidden; button only -->
-                                <button id="chatWitnessBtn" class="chat-button">Chat with Witness</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="supporting-grid">
-                        <div id="citationsCard" class="card citations-card"></div>
-                        <div id="searchResultsCard" class="card search-results-card"></div>
-                    </div>
-
-                    <!-- chat modal for witness interaction -->
-                    <div id="chatModal" class="chat-modal hidden">
-                        <div class="chat-window">
-                            <div class="chat-header">
-                                <span>Chat with Witness</span>
-                                <span class="close-icon" id="closeChatBtn">✖</span>
-                            </div>
-                            <div id="chatMessages" class="chat-messages"></div>
-                            <div class="chat-input-area">
-                                <input type="text" id="chatInput" placeholder="Ask the witness..." />
-                                <button id="sendChatBtn">Send</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="clear-button" onclick="clearResults()">← Check Another Claim</button>
-                </div>
-
-                <div id="emptyState" class="empty-state">
-                    <div class="empty-icon">🔍</div>
-                    <h2>Start Fact Checking</h2>
-                    <p>Enter a claim or question above to verify its accuracy</p>
-                </div>
-            </div>
-
-            <!-- History Tab -->
-            <div id="historyTab" class="tab-content">
-                <div id="historyList" class="history-list">
-                    <div class="history-empty">
-                        <div class="history-empty-icon">📜</div>
-                        <h3>No History Yet</h3>
-                        <p>Your fact-check history will appear here</p>
-                    </div>
-                </div>
-                <button class="clear-history-btn" onclick="clearHistory()" id="clearHistoryBtn" style="display: none;">🗑️ Clear History</button>
-            </div>
-        </main>
-
-        <footer class="app-footer">
-            <p>Powered by san.d.osh & eisa.exe | Fact checking with evidence-based reasoning</p>
-        </footer>
-    </div>
-
-    <script>
-        const API_BASE = 'http://localhost:5000';
-        const HISTORY_KEY = 'factCheckerHistory';
-
-        const queryInput = document.getElementById('queryInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const errorNotification = document.getElementById('errorNotification');
-        const errorText = document.getElementById('errorText');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const emptyState = document.getElementById('emptyState');
-        const questionDisplay = document.getElementById('questionDisplay');
-        const questionText = document.getElementById('questionText');
-
-        searchBtn.addEventListener('click', performSearch);
-        queryInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !searchBtn.disabled) {
-                performSearch();
-            }
-        });
-
-        // Get history from localStorage
-        function getHistory() {
-            const history = localStorage.getItem(HISTORY_KEY);
-            return history ? JSON.parse(history) : [];
-        }
-
-        // Save history to localStorage
-        function saveHistory(history) {
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-            updateHistoryTab();
-        }
-
-        // Add result to history
-        function addToHistory(query, result) {
-            const history = getHistory();
-            const historyItem = {
-                id: Date.now(),
-                query: query,
-                verdict: result.verdict,
-                confidence: result.confidence,
-                explanation: result.explanation,
-                citations: result.citations,
-                searchResults: result.searchResults,
-                timestamp: new Date().toISOString()
-            };
-            history.unshift(historyItem); // Add to beginning
-            saveHistory(history);
-        }
-
-        async function performSearch() {
-            const query = queryInput.value.trim();
-
-            if (!query) {
-                showError('Please enter a claim or question');
-                return;
-            }
-
-            hideError();
-            hideResults();
-            showLoading();
-            searchBtn.disabled = true;
-            queryInput.disabled = true;
-
-            try {
-                const response = await fetch(`${API_BASE}/api/fact-check`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ query })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'An error occurred');
-                }
-
-                const data = await response.json();
-                displayResults(data, query);
-                addToHistory(query, data);
-                queryInput.value = '';
-            } catch (error) {
-                showError(error.message || 'Failed to check the fact. Is the backend running on http://localhost:5000?');
-                console.error('Error:', error);
-            } finally {
-                hideLoading();
-                searchBtn.disabled = false;
-                queryInput.disabled = false;
-                queryInput.focus();
-            }
-        }
-
-        function displayResults(data, query) {
-            // Display the question
-            questionText.textContent = query;
-            questionDisplay.classList.remove('hidden');
-
-            // Verdict Card
-            const isReal = data.verdict === 'Real';
-            document.getElementById('verdictCard').innerHTML = `
-                <div class="${isReal ? 'verdict-real' : 'verdict-cap'}">
-                    <div class="verdict-icon">${isReal ? '✅' : '❌'}</div>
-                    <div class="verdict-text">
-                        <p class="verdict-label">Verdict</p>
-                        <p class="verdict-value">${data.verdict}</p>
-                    </div>
-                    <div class="verdict-badge">${isReal ? 'VERIFIED' : 'FALSE'}</div>
-                </div>
-            `;
-
-            // Confidence Card
-            const confidence = data.confidence;
-            const confidenceLevel = confidence > 75 ? 'High Confidence' : confidence > 45 ? 'Moderate Confidence' : 'Low Confidence';
-            const confidenceColor = confidence > 75 ? '#10b981' : confidence > 45 ? '#f59e0b' : '#ef4444';
-            const confidenceDesc = confidence > 75
-                ? 'The analysis is based on strong evidence from multiple sources.'
-                : confidence > 45
-                ? 'The analysis is based on available evidence, but some uncertainty remains.'
-                : 'Limited evidence available. Results should be verified independently.';
-
-            document.getElementById('confidenceCard').innerHTML = `
-                <div class="confidence-header">
-                    <h3>📊 Confidence Level</h3>
-                    <span class="confidence-percentage" style="color: ${confidenceColor}">${confidence}%</span>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${confidence}%; background-color: ${confidenceColor}"></div>
-                    </div>
-                </div>
-                <div class="confidence-level" style="color: ${confidenceColor}">${confidenceLevel}</div>
-                <div class="confidence-description">
-                    <p>${confidenceDesc}</p>
-                </div>
-            `;
-
-            // Explanation Card
-            document.getElementById('explanationCard').innerHTML = `
-                <div class="card-header">
-                    <h3>🧠 Explanation</h3>
-                </div>
-                <div class="explanation-content">
-                    <p>${data.explanation}</p>
-                </div>
-            `;
-
-            // Witness Card – compute witness text for chat but do not display it
-            let witnessText = data.witness || '';
-            if (!witnessText && data.searchResults && data.searchResults.length) {
-                witnessText = data.searchResults.map(r => `Title: ${r.title}\n${r.content}`).join('\n');
-            }
-            if (witnessText) {
-                window.latestWitness = witnessText; // store for chat
-                document.getElementById('witnessCard').classList.remove('hidden');
-            } else {
-                document.getElementById('witnessCard').classList.add('hidden');
-            }
-
-            // Citations Card
-            const citations = data.citations || [];
-            const citationsHtml = citations.length > 0
-                ? citations.map((citation, i) => {
-                    const domain = new URL(citation).hostname.replace('www.', '');
-                    const sourceName = domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
-                    return `
-                        <a href="${citation}" target="_blank" rel="noopener noreferrer" class="citation-item">
-                            <div class="citation-icon">🌐</div>
-                            <div class="citation-info">
-                                <p class="citation-source">${sourceName}</p>
-                                <p class="citation-url">${citation.substring(0, 60)}...</p>
-                            </div>
-                            <div class="citation-arrow">→</div>
-                        </a>
-                    `;
-                }).join('')
-                : '<p class="no-citations">No citations available</p>';
-
-            document.getElementById('citationsCard').innerHTML = `
-                <div class="card-header">
-                    <h3>🔗 Citations</h3>
-                    <span class="citation-count">${citations.length}</span>
-                </div>
-                <div class="citations-list">
-                    ${citationsHtml}
-                </div>
-            `;
-
-            // Search Results Card
-            const results = data.searchResults || [];
-            const resultsHtml = results.length > 0
-                ? results.map((result, i) => `
-                    <div class="result-item" id="result-${i}">
-                        <div class="result-header" onclick="toggleResult(${i})">
-                            <div class="result-title-section">
-                                <h4 class="result-title">${result.title}</h4>
-                                <p class="result-url">${result.url}</p>
-                            </div>
-                            <button class="expand-button">▶</button>
-                        </div>
-                        <div class="result-content hidden" id="content-${i}">
-                            <p>${result.content}</p>
-                            <a href="${result.url}" target="_blank" rel="noopener noreferrer" class="read-more-link">
-                                Read Full Article →
-                            </a>
-                        </div>
-                    </div>
-                `).join('')
-                : '<p class="no-results">No search results available</p>';
-
-            document.getElementById('searchResultsCard').innerHTML = `
-                <div class="card-header">
-                    <h3>📚 Web Evidence</h3>
-                    <span class="results-count">${results.length}</span>
-                </div>
-                <div class="results-container-inner">
-                    ${resultsHtml}
-                </div>
-            `;
-
-            showResults();
-        }
-
-        function toggleResult(index) {
-            const content = document.getElementById(`content-${index}`);
-            const button = document.getElementById(`result-${index}`).querySelector('.expand-button');
-            const item = document.getElementById(`result-${index}`);
-
-            content.classList.toggle('hidden');
-            item.classList.toggle('expanded');
-            button.textContent = content.classList.contains('hidden') ? '▶' : '▼';
-        }
-
-        function showError(message) {
-            errorText.textContent = message;
-            errorNotification.classList.remove('hidden');
-        }
-
-        function hideError() {
-            errorNotification.classList.add('hidden');
-        }
-
-        function showLoading() {
-            loadingSpinner.classList.remove('hidden');
-        }
-
-        function hideLoading() {
-            loadingSpinner.classList.add('hidden');
-        }
-
-        function showResults() {
-            emptyState.classList.add('hidden');
-            resultsContainer.classList.remove('hidden');
-        }
-
-        function hideResults() {
-            resultsContainer.classList.add('hidden');
-        }
-
-        function clearResults() {
-            hideResults();
-            emptyState.classList.remove('hidden');
-            queryInput.value = '';
-            queryInput.focus();
-        }
-
-        function switchTab(tab) {
-            // Hide all tabs
-            document.getElementById('searchTab').classList.remove('active');
-            document.getElementById('historyTab').classList.remove('active');
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            
-            // Show selected tab
-            if (tab === 'search') {
-                document.getElementById('searchTab').classList.add('active');
-                document.querySelectorAll('.tab-button')[0].classList.add('active');
-            } else if (tab === 'history') {
-                document.getElementById('historyTab').classList.add('active');
-                document.querySelectorAll('.tab-button')[1].classList.add('active');
-                updateHistoryTab();
-            }
-        }
-
-        function updateHistoryTab() {
-            const history = getHistory();
-            const historyListDiv = document.getElementById('historyList');
-            const clearBtn = document.getElementById('clearHistoryBtn');
-
-            if (history.length === 0) {
-                historyListDiv.innerHTML = `
-                    <div class="history-empty">
-                        <div class="history-empty-icon">📜</div>
-                        <h3>No History Yet</h3>
-                        <p>Your fact-check history will appear here</p>
-                    </div>
-                `;
-                clearBtn.style.display = 'none';
-            } else {
-                const historyHtml = history.map((item, index) => {
-                    const date = new Date(item.timestamp);
-                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const isReal = item.verdict === 'Real';
-                    return `
-                        <div class="history-item" onclick="loadHistoryItem(${index})">
-                            <div class="history-item-header">
-                                <h3 class="history-question">${escapeHtml(item.query)}</h3>
-                                <span class="history-verdict ${isReal ? 'real' : 'cap'}">
-                                    ${isReal ? '✅ Real' : '❌ Cap'}
-                                </span>
-                            </div>
-                            <div class="history-info">
-                                <div class="history-date">
-                                    📅 ${dateStr}
-                                </div>
-                                <div class="history-confidence">
-                                    📊 ${item.confidence}% confidence
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                historyListDiv.innerHTML = historyHtml;
-                clearBtn.style.display = 'block';
-            }
-        }
-
-        function loadHistoryItem(index) {
-            const history = getHistory();
-            const item = history[index];
-            
-            // Reconstruct the result object
-            const data = {
-                verdict: item.verdict,
-                confidence: item.confidence,
-                explanation: item.explanation,
-                citations: item.citations,
-                searchResults: item.searchResults
-            };
-            
-            // Switch to search tab and display results
-            switchTab('search');
-            displayResults(data, item.query);
-        }
-
-        function clearHistory() {
-            if (confirm('Are you sure you want to clear all history? This cannot be undone.')) {
-                localStorage.removeItem(HISTORY_KEY);
-                updateHistoryTab();
-            }
-        }
-
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // News ticker helpers
-        async function loadNews() {
-            try {
-                const res = await fetch(`${API_BASE}/api/news`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.articles && data.articles.length) {
-                        populateNewsTicker(data.articles);
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to load news', err);
-            }
-            // hide ticker if anything goes wrong or no articles
-            const wrapper = document.querySelector('.news-ticker-wrapper');
-            if (wrapper) wrapper.style.display = 'none';
-        }
-
-        function populateNewsTicker(articles) {
-            const contentEl = document.getElementById('newsTickerContent');
-            const items = articles.map(a => `
-                <span class="news-item"><a href="${a.url}" target="_blank" rel="noopener noreferrer">
-                    ${a.title}
-                </a></span>
-            `).join('');
-            contentEl.innerHTML = items + items; // duplicate for seamless loop
-        }
-
-        // Chat globals
-        let chatHistory = [];
-        let currentWitness = '';
-
-        function openChat(witnessText) {
-            currentWitness = witnessText;
-            chatHistory = [];
-            document.getElementById('chatMessages').innerHTML = '';
-            document.getElementById('chatModal').classList.remove('hidden');
-            document.getElementById('chatInput').focus();
-        }
-
-        function closeChat() {
-            document.getElementById('chatModal').classList.add('hidden');
-        }
-
-        async function sendChat() {
-            const inputEl = document.getElementById('chatInput');
-            const question = inputEl.value.trim();
-            if (!question) return;
-            // add user message to UI
-            appendChatMessage('user', question);
-            chatHistory.push({ role: 'user', content: question });
-            inputEl.value = '';
-
-            try {
-                const res = await fetch(`${API_BASE}/api/witness-chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ witness: currentWitness, history: chatHistory }),
-                });
-                const data = await res.json();
-                if (data.success) {
-                    const reply = data.reply;
-                    appendChatMessage('assistant', reply);
-                    chatHistory.push({ role: 'assistant', content: reply });
-                } else {
-                    appendChatMessage('assistant', 'Error: ' + (data.error || 'Unable to get response'));
-                }
-            } catch (err) {
-                appendChatMessage('assistant', 'Error communicating with server.');
-                console.error(err);
-            }
-        }
-
-        function appendChatMessage(role, text) {
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = 'chat-message ' + role;
-            // escape HTML and highlight phrase
-            const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            const highlighted = escaped.replace(/The Kerala Story\u202f2: Goes Beyond/g,
-                                                 '<strong>The Kerala Story 2: Goes Beyond</strong>');
-            div.innerHTML = highlighted;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        document.getElementById('chatWitnessBtn').addEventListener('click', () => {
-            openChat(window.latestWitness || '');
-        });
-        document.getElementById('closeChatBtn').addEventListener('click', closeChat);
-        document.getElementById('sendChatBtn').addEventListener('click', sendChat);
-        document.getElementById('chatInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendChat();
-            }
-        });
-
-        // Initial focus
-        queryInput.focus();
-        loadNews();
-    </script>
+    <!-- App Logic -->
+    <script src="script.js"></script>
 </body>
+
 </html>

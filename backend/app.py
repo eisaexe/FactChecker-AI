@@ -269,6 +269,53 @@ def witness_chat():
 
 
 # ==============================
+# ✅ REVIEWS
+# ==============================
+import datetime
+
+REVIEWS_FILE = os.path.join(os.path.dirname(__file__), 'reviews.json')
+
+def load_reviews():
+    if not os.path.exists(REVIEWS_FILE):
+        return []
+    try:
+        with open(REVIEWS_FILE, 'r') as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+def save_reviews(reviews):
+    with open(REVIEWS_FILE, 'w') as f:
+        json.dump(reviews, f, indent=4)
+
+@app.route('/api/reviews', methods=['GET'])
+def get_reviews():
+    return jsonify({"success": True, "reviews": load_reviews()}), 200
+
+@app.route('/api/reviews', methods=['POST'])
+def add_review():
+    data = request.json or {}
+    text = data.get('text', '').strip()
+    rating = data.get('rating', 0)
+    
+    if not text or not rating:
+        return jsonify({"success": False, "error": "Text and rating are required."}), 400
+        
+    reviews = load_reviews()
+    new_review = {
+        "id": int(datetime.datetime.now().timestamp() * 1000),
+        "text": text,
+        "rating": rating,
+        "date": datetime.datetime.now().isoformat()
+    }
+    
+    # Prepend the new review so newest is first
+    reviews.insert(0, new_review)
+    save_reviews(reviews)
+    
+    return jsonify({"success": True, "review": new_review}), 201
+
+# ==============================
 # ✅ STATIC FRONTEND
 # ==============================
 from flask import send_from_directory

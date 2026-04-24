@@ -36,6 +36,7 @@
                 <button id="navHome" class="nav-tab active">Home</button>
                 <button id="navHistory" class="nav-tab">History</button>
                 <button id="navPricing" class="nav-tab">Pricing</button>
+                <button id="navReviews" class="nav-tab">Reviews</button>
             </div>
 
             <!-- Credit Area -->
@@ -161,6 +162,37 @@
                         <button class="search-btn" style="width:100%; padding:0.75rem;">Buy 3000 Credits</button>
                     </div>
 
+                </div>
+            </section>
+
+            <!-- View 1.9: Reviews Section -->
+            <section id="reviewsView" class="view-section" style="display: none; width: 100%;">
+                <div style="text-align: center;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">User <span class="highlight-text">Reviews</span></h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Read and share feedback from across the network.</p>
+                </div>
+                
+                <div class="review-input-container">
+                    <div class="glass-card review-input-card">
+                        <h3 style="margin-bottom: 1rem;">Leave a Review</h3>
+                        <div class="star-rating" id="starRatingContainer">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <p id="reviewPreMessage" class="review-pre-message">Click a star to rate!</p>
+                        <textarea id="reviewText" placeholder="Write your review here... be fast!" class="review-textarea"></textarea>
+                        <div style="position: relative;">
+                            <button id="submitReviewBtn" class="search-btn" style="width: 100%; margin-top: 1rem;">Post Review</button>
+                            <div id="bubbleContainer" class="bubble-spawn-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reviewsGrid" class="reviews-grid">
+                    <!-- Reviews will be injected here via JS -->
                 </div>
             </section>
 

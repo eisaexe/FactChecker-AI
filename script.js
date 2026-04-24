@@ -24,6 +24,7 @@ const resultsDashboard = document.getElementById('resultsDashboard');
 const landingSection = document.getElementById('landingSection');
 const historyView = document.getElementById('historyView');
 const pricingView = document.getElementById('pricingView');
+const reviewsView = document.getElementById('reviewsView');
 const appFooter = document.querySelector('.app-footer');
 
 const creditCountDisplay = document.getElementById('creditCount');
@@ -56,6 +57,7 @@ themeToggleBtn.addEventListener('click', () => {
 const navHome = document.getElementById('navHome');
 const navHistory = document.getElementById('navHistory');
 const navPricing = document.getElementById('navPricing');
+const navReviews = document.getElementById('navReviews');
 
 // Side Chat Elements
 const chatSidebar = document.getElementById('chatSidebar');
@@ -76,6 +78,7 @@ queryInput.addEventListener('keypress', (e) => {
 navHome.addEventListener('click', () => switchTab('home'));
 navHistory.addEventListener('click', () => switchTab('history'));
 navPricing.addEventListener('click', () => switchTab('pricing'));
+navReviews.addEventListener('click', () => switchTab('reviews'));
 
 
 closeChatBtn.addEventListener('click', () => {
@@ -103,6 +106,7 @@ function switchTab(tab) {
     landingSection.style.display = 'none';
     historyView.style.display = 'none';
     pricingView.style.display = 'none';
+    reviewsView.style.display = 'none';
     resultsDashboard.style.display = 'none';
     loadingView.style.display = 'none';
     appFooter.classList.remove('hidden-footer');
@@ -111,6 +115,7 @@ function switchTab(tab) {
     navHome.classList.remove('active');
     navHistory.classList.remove('active');
     navPricing.classList.remove('active');
+    navReviews.classList.remove('active');
 
     if (tab === 'home') {
         navHome.classList.add('active');
@@ -122,6 +127,10 @@ function switchTab(tab) {
     } else if (tab === 'pricing') {
         navPricing.classList.add('active');
         pricingView.style.display = 'block';
+    } else if (tab === 'reviews') {
+        navReviews.classList.add('active');
+        reviewsView.style.display = 'block';
+        loadReviews();
     }
 }
 
@@ -507,4 +516,157 @@ function updateCreditDisplay() {
             creditCountDisplay.style.color = "var(--primary-neon)";
         }
     }
+}
+
+// ==========================================
+// ⭐ REVIEWS SYSTEM
+// ==========================================
+
+const starRatingContainer = document.getElementById('starRatingContainer');
+const stars = document.querySelectorAll('.star');
+const reviewPreMessage = document.getElementById('reviewPreMessage');
+const reviewText = document.getElementById('reviewText');
+const submitReviewBtn = document.getElementById('submitReviewBtn');
+const reviewsGrid = document.getElementById('reviewsGrid');
+const bubbleContainer = document.getElementById('bubbleContainer');
+let currentRating = 0;
+
+const preMessages = [
+    "Rate to unlock insight...",
+    "1 Star - Pure Cap?",
+    "2 Stars - Hmm...",
+    "3 Stars - Average Check",
+    "4 Stars - Solid Intel",
+    "5 Stars - Absolute Truth!"
+];
+
+if (stars.length > 0) {
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            currentRating = parseInt(star.getAttribute('data-value'));
+            updateStars(currentRating);
+            reviewPreMessage.textContent = preMessages[currentRating];
+            reviewPreMessage.style.color = "var(--primary-neon)";
+        });
+        
+        star.addEventListener('mouseenter', () => {
+            const hoverVal = parseInt(star.getAttribute('data-value'));
+            updateStars(hoverVal);
+        });
+        
+        star.addEventListener('mouseleave', () => {
+            updateStars(currentRating);
+        });
+    });
+}
+
+function updateStars(val) {
+    stars.forEach(s => {
+        const sVal = parseInt(s.getAttribute('data-value'));
+        if (sVal <= val) {
+            s.classList.add('active');
+        } else {
+            s.classList.remove('active');
+        }
+    });
+}
+
+function spawnBubbles() {
+    if (!bubbleContainer) return;
+    for (let i = 0; i < 15; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'flying-bubble';
+        const size = Math.random() * 20 + 10;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        
+        // Random trajectory
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 150 + 50;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 100; // Prefer upward
+        
+        bubble.style.setProperty('--tx', `${tx}px`);
+        bubble.style.setProperty('--ty', `${ty}px`);
+        
+        bubbleContainer.appendChild(bubble);
+        
+        // Remove after animation (1.5s)
+        setTimeout(() => bubble.remove(), 1500);
+    }
+}
+
+if (submitReviewBtn) {
+    submitReviewBtn.addEventListener('click', async () => {
+        const text = reviewText.value.trim();
+        if (currentRating === 0) {
+            showError("Please select a star rating.");
+            return;
+        }
+        if (!text) {
+            showError("Please write a review.");
+            return;
+        }
+        
+        submitReviewBtn.disabled = true;
+        spawnBubbles();
+        
+        try {
+            const res = await fetch(`${API_BASE}/api/reviews`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: currentRating, text: text })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                reviewText.value = '';
+                currentRating = 0;
+                updateStars(0);
+                reviewPreMessage.textContent = "Review posted! Thank you.";
+                reviewPreMessage.style.color = "var(--success-green)";
+                loadReviews(); // Refresh list
+            } else {
+                showError(data.error || "Failed to post review.");
+            }
+        } catch (err) {
+            showError("Network error. Unable to post.");
+        } finally {
+            submitReviewBtn.disabled = false;
+        }
+    });
+}
+
+async function loadReviews() {
+    try {
+        const res = await fetch(`${API_BASE}/api/reviews`);
+        const data = await res.json();
+        if (data.success && data.reviews) {
+            renderReviewCards(data.reviews);
+        }
+    } catch (err) {
+        console.error("Failed loading reviews:", err);
+    }
+}
+
+function renderReviewCards(reviews) {
+    if (!reviewsGrid) return;
+    if (reviews.length === 0) {
+        reviewsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No reviews yet. Be the first!</p>';
+        return;
+    }
+    
+    reviewsGrid.innerHTML = reviews.map(r => {
+        const d = new Date(r.date).toLocaleDateString();
+        const starsHtml = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        return `
+            <div class="review-card">
+                <div class="r-header">
+                    <span class="r-stars">${starsHtml}</span>
+                    <span class="r-date">${d}</span>
+                </div>
+                <div class="r-text">${r.text.replace(/</g, "&lt;")}</div>
+            </div>
+        `;
+    }).join("");
 }
